@@ -3,7 +3,10 @@ player.__index = player
 
 playerimg = love.graphics.newImage("img/player.png")
 playermetalimg = love.graphics.newImage("img/player_metal.png")
+playertopimg = love.graphics.newImage("img/player_top.png")
+playertopmetalimg = love.graphics.newImage("img/player_top_metal.png")
 --local plyObj = {}
+powerups = {}
 
 function player.create(x,y,w,h)
   local plyMan = {}
@@ -14,9 +17,15 @@ function player.create(x,y,w,h)
   plyMan.h = h
   plyMan.score = 0
   plyMan.bulletDelay = 0
+  plyMan.bulletSpeed = 20
   plyMan.shield = 0
+  plyMan.air = 30
   plyMan.isSurfaced = false
   plyMan.isDead = false
+  plyMan.isFightingBoss = nil
+  plyMan.isAirWarned = false
+  plyMan.hasKilledKraken = false
+  plyMan.hasKilledPlane = false
   
   plyMan.levdir = 1
   plyMan.levdur = 0
@@ -28,37 +37,93 @@ function player.create(x,y,w,h)
   return plyMan
 end
 
+lastdt = 0
 function player:update(dt)
+  lastdt = lastdt + dt
+  if lastdt >= 1 and self.isSurfaced == false then
+    lastdt = 0
+    self.air = self.air - 1
+  end
+  if lastdt >= 1 and self.isSurfaced == true and self.air < 30 then
+    lastdt = 0
+    if self.air % 2 == 0 then
+      self.air = self.air + 1
+    end
+    self.air = self.air + 1
+  end
+  
+  if self.air <= 0 then
+    self.isDead = true
+  end 
+  
+  if self.air <= 10 and self.isAirWarned == false then
+      table.insert(hud, dialog.create(3))
+      self.isAirWarned = true
+  end 
+  
+  --Powerup calc
+  for key, value in ipairs(powerups) do
+    if value ~= nil then
+        value.duration = value.duration - dt
+        if value.duration <= 0 then
+          value:rollback()
+          table.remove(powerups, key) 
+       end
+    end
+  end
+  
 end
 
-  function player:calcMove(plyMan)
+function player:calcMove(plyMan)
     --keyboard input
-    if (love.keyboard.isDown("w")) then
+   
+if not self.isDead then
+    if (love.keyboard.isDown("w")) and self.y > -600 then
     self.plyObj:move(0,-3)
   end
-    if (love.keyboard.isDown("s")) then
+    if (love.keyboard.isDown("s")) and self.y < 600-self.w then
     self.plyObj:move(0,3)
   end
-    if (love.keyboard.isDown("a")) then
+    camX,camY = cam:worldCoords(0,0)
+    if (love.keyboard.isDown("a")) and self.x > camX then
     self.plyObj:move(-5,0)
   end
-    if (love.keyboard.isDown("d")) then
+    if (love.keyboard.isDown("d")) and self.x < camX+800-self.h then
     self.plyObj:move(5,0)   
   end  
+
   
-  if self.y < 0 and self.isSurfaced == false then
-    self.shield = 2
-    self:triggerSurface()
-  elseif self.isSurfaced == true and love.keyboard.isDown(" ") then
-    self.shield = 2
-    self:triggerDive()
+  if self.x < camX then
+    self.plyObj:move(2,0)   
+  end
+  
+  if self.y >= -self.w-5 and self.isSurfaced then
+    self.plyObj:move(0,-3)   
+  end
+  
+-- fuck this
+--  if self.x < camX-20 then
+--    self.isDead = true
+--  end  
+
+  
+  if ( self.y < 0 and self.isSurfaced == false ) then
+    if self.isFightingBoss == nil then
+      self.shield = 2
+      self:triggerSurface()
+    end    
+  elseif (self.isSurfaced == true and love.keyboard.isDown(" ") and self.isFightingBoss ~= nil and self.isFightingBoss.shootMode ~= 5) or (self.isSurfaced == true and self.isFightingBoss ~= nil and self.isFightingBoss.shootMode == 4) then
+    if self.isFightingBoss == nil then
+      self.shield = 2
+      self:triggerDive()
+      end
   end
   
   if self.shield > 0 then
     self.shield = self.shield - love.timer.getDelta()
   end
   
-  if self.bulletDelay > 20 then
+  if self.bulletDelay > self.bulletSpeed then
     if (love.keyboard.isDown("lctrl")) then
       bulletMan = bullet.create(self.x+100,self.y+10,"player",10,0)
       table.insert(entities, bulletMan)
@@ -77,6 +142,11 @@ end
   --invert levdir
   self.levdir = self.levdir * -1
   end
+  elseif self.isDead == true and self.isSurfaced  == false then
+     self:getObj():move(0,2)
+     else
+   end
+
   
   self:setCoordinates()
 end
@@ -95,7 +165,7 @@ end
 
 function player:initObj()
   self.plyObj = HC:addRectangle(self.x,self.y,self.w,self.h)
-  print(self.plyObj)
+  --print(self.plyObj)
   self.plyObj:rotate(math.rad(90),self.x,self.y)
   self.plyObj.name = "player"
   self:setCoordinates()
@@ -110,10 +180,22 @@ end
 
 function player:draw()
   --self.plyObj:draw()
-  if self.shield > 0 then
-    love.graphics.draw(playermetalimg, self.x, self.y)
+  if self.isSurfaced == false then
+    if self.shield > 0 and self.isDead == false then
+      love.graphics.draw(playermetalimg, self.x, self.y)
+    elseif self.shield <= 0 and self.isDead == false then
+      love.graphics.draw(playerimg, self.x, self.y)
+   elseif self.shield > 0 and self.isDead == true then
+     love.graphics.draw(playermetalimg, self.x+self.h, self.y+self.w, math.rad(180))
+    elseif self.shield <= 0 and self.isDead == true then      
+      love.graphics.draw(playerimg, self.x+self.h, self.y+self.w, math.rad(180))
+   end
   else
-  love.graphics.draw(playerimg, self.x, self.y)
+    if self.shield > 0 then
+      love.graphics.draw(playertopmetalimg, self.x, self.y)
+    else
+    love.graphics.draw(playertopimg, self.x, self.y)
+    end  
   end
 end
 
@@ -127,13 +209,34 @@ function player:collideWithObj(shape,dx,dy)
   if shape.name == "rock" then
     self:crashesRock(dx,dy)
   end
-  if shape.name == "enemy" then
+  if shape.name == "powerup" then
+    if shape.type == "speed" then
+      self.bulletSpeed = 7
+    end
+    if shape.type == "air" then
+      self.air = 30
+    end
+    
+    
+    for key, value in ipairs(entities) do
+      if value:getObj() == shape then
+        value.isCollected = true
+        table.insert(powerups, value)
+        --PowerupMan löscht in update
+        HC:remove(shape)
+      end
+    end
+  end
+  if shape.name == "bomb" then
+    self:crashesRock(dx,dy)
+  end
+  if (shape.name == "enemy") and shape.boss ~= "plane" then
+    print(shape.boss)
     if plyMan.shield <= 0 then
     self.isDead = true
     end
   end
   if shape.name == "coin" then
-    --TODO: remove coin
     self.score = self.score + 1
     for key, value in ipairs(entities) do
       if value:getObj() == shape then
@@ -145,7 +248,8 @@ function player:collideWithObj(shape,dx,dy)
 end
 
 function player:crashesRock(dx,dy)
-  self.plyObj:move(dx, dy)  
+  --self.plyObj:move(dx, dy)  
+  self.isDead = true
   self:setCoordinates()
 end
 

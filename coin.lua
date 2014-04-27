@@ -23,7 +23,7 @@ function coin:getObj()
 end
 
 function coin:draw()
-  self.coinObj:draw('line')
+ -- self.coinObj:draw('line')
   love.graphics.draw(coinimg, self.x, self.y)
 end
 

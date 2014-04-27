@@ -34,7 +34,7 @@ function bullet:compareObj(shape)
 end
 
 function bullet:draw()
-  self.bulletObj:draw()
+  --self.bulletObj:draw()
   love.graphics.draw(bulletimg, self.x, self.y)
 end
 
@@ -59,8 +59,23 @@ function bullet:collideWithObj(shape_self,shape,dx,dy)
   if shape.name == "enemy" then
      for key, value in ipairs(enemycontrol.enemyList) do
       if value:getObj() == shape and shape_self.from ~= shape.name then
-        table.remove(enemycontrol.enemyList, key)
-        HC:remove(shape)
+        value.lives = value.lives - 1
+        for key2, value2 in ipairs(entities) do
+          if value2:getObj() == shape_self then
+            table.remove(entities, key2)
+            HC:remove(value2:getObj())
+          end
+        end
+        if value.lives < 1 then
+          plyMan.isFightingBoss = nil
+          table.remove(enemycontrol.enemyList, key)
+            if shape.boss == "kraken" then
+              plyMan.hasKilledKraken = true
+            elseif shape.boss == "plane" then
+              plyMan.hasKilledPlane = true
+            end
+          HC:remove(shape)
+        end
       end
     end
   end

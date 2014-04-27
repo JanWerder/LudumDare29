@@ -2,6 +2,16 @@ rock = {}
 rock.__index = rock
 
 rock1 = love.graphics.newImage("img/rock1.png")
+rock2 = love.graphics.newImage("img/rock2.png")
+rock3 = love.graphics.newImage("img/rock3.png")
+ufo = love.graphics.newImage("img/ufo.png")
+plant = love.graphics.newImage("img/plant.png")
+plant2 = love.graphics.newImage("img/plant2.png")
+plant3 = love.graphics.newImage("img/plant3.png")
+plant4 = love.graphics.newImage("img/plant4.png")
+plant5 = love.graphics.newImage("img/plant5.png")
+bomb = love.graphics.newImage("img/bomb.png")
+
 rockObj ={}
 
 function rock.create(id,x,y)
@@ -9,6 +19,7 @@ function rock.create(id,x,y)
   setmetatable(rockMan, rock)
   rockMan.x = x
   rockMan.y = y
+  rockMan.rockid = 0
   rockMan:initObj(id)
   return rockMan
 end
@@ -33,8 +44,58 @@ function rock:initObj(id)
     self.x+185,self.y+169, 
     self.x+190,self.y+209, 
     self.x+199,self.y+300)
+    self.rockid = rock1
+    self.rockObj.name = "rock"
+  elseif id == 2 then
+    self.rockObj = HC:addRectangle(self.x,self.y,180,600)
+    self.rockid = rock2
+    self.rockObj.name = "rock"
+  elseif id == 20 then
+    self.rockObj = HC:addRectangle(self.x,self.y,300,400)
+    self.rockid = rock3
+    self.rockObj.name = "rock"
+  elseif id == 3 then
+    self.rockObj = HC:addRectangle(self.x,self.y,300,300)
+    self.rockid = bomb
+    self.rockObj.name = "bomb"
+  elseif id == 4 then
+    self.rockObj = HC:addPolygon(
+      self.x+12,self.y+175, 
+      self.x+70,self.y+134,
+      self.x+56,self.y+95,
+      self.x+80,self.y+75,
+      self.x+115,self.y+30,
+      self.x+170,self.y+10,
+      self.x+185,self.y+20,
+      self.x+230,self.y+20,
+      self.x+250,self.y+57,
+      self.x+360,self.y+50,
+      self.x+393,self.y+60,
+      self.x+393,self.y+179
+    )
+    self.rockid = ufo
+    self.rockObj.name = "rock"
+  elseif id == 5 then
+    self.rockObj = HC:addRectangle(self.x,self.y,20,80)
+    self.rockid = plant
+    self.rockObj.name = "plant"
+  elseif id == 6 then
+    self.rockObj = HC:addRectangle(self.x,self.y,40,80)
+    self.rockid = plant2
+    self.rockObj.name = "plant"
+  elseif id == 7 then
+    self.rockObj = HC:addRectangle(self.x,self.y,20,80)
+    self.rockid = plant3
+    self.rockObj.name = "plant"
+  elseif id == 8 then
+    self.rockObj = HC:addRectangle(self.x,self.y,40,80)
+    self.rockid = plant4
+    self.rockObj.name = "plant"
+  elseif id == 9 then
+    self.rockObj = HC:addRectangle(self.x,self.y,100,250)
+    self.rockid = plant5
+    self.rockObj.name = "plant"
   end
-  self.rockObj.name = "rock"
 end
 
 function rock:getObj()
@@ -42,8 +103,8 @@ function rock:getObj()
 end
 
 function rock:draw()
-  self.rockObj:draw('line')
-  love.graphics.draw(rock1, self.x, self.y)
+  --self.rockObj:draw('line')
+  love.graphics.draw(self.rockid, self.x, self.y)
 end
 
 function rock:update(dt)
