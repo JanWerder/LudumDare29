@@ -30,28 +30,49 @@ function enemyController:update(dt)
         newEnemy = false
       end
     end
-    if self.timeSinceLastSpawn < (2000/plyMan.x) or plyMan.x < 0 then
+    if self.timeSinceLastSpawn < (2500/plyMan.x) or plyMan.x < 0 then
       newEnemy = false
     end
     if newEnemy == true then
-      if plyMan.x > 2000 then
+      if plyMan.x > 5500 then
         if plyMan.y < 0 then
-          --Plane
-          nenemy = enemy.create(newEnemyXKoord, plyMan.y, 5, 1)
-          if not plyMan.hasKilledKraken then
+          if not plyMan.hasKilledPlane then
+            --Plane
+            nenemy = enemy.create(newEnemyXKoord, plyMan.y, 5, 1)
+          end
+          if not plyMan.hasKilledPlane then
             table.insert(hud, dialog.create(4))
           end
-        else
-          --Kraken
-          nenemy = enemy.create(newEnemyXKoord, plyMan.y, 4, 1)
+        elseif plyMan.y > 0 and not plyMan.hasKilledKraken then
+          if not plyMan.hasKilledKraken then
+            --Kraken
+            nenemy = enemy.create(newEnemyXKoord, plyMan.y, 4, 1)
+          end
           if plyMan.hasKilledKraken and not plyMan.hasKilledPlane then
             table.insert(hud, dialog.create(7))
           end
         end
+        table.insert(self.enemyList, nenemy)
       else
-        nenemy = enemy.create(newEnemyXKoord, plyMan.y, math.random(1,3), math.random(0.1,1))
+        if math.random(1,15) == 15 then
+          randShootMode = math.random(1,2)
+          if randShootMode == 2 then
+            randShootSpeed = math.random(0.6,1)
+          else
+            randShootSpeed = math.random(0.1,0.9)
+          end
+          nenemy = enemy.create(newEnemyXKoord, plyMan.y-100, randShootMode, randShootSpeed)
+          table.insert(self.enemyList, nenemy)
+          nenemy = enemy.create(newEnemyXKoord, plyMan.y, randShootMode, randShootSpeed)
+          table.insert(self.enemyList, nenemy)
+          nenemy = enemy.create(newEnemyXKoord, plyMan.y+100, randShootMode, randShootSpeed)
+          table.insert(self.enemyList, nenemy)
+        else
+          nenemy = enemy.create(newEnemyXKoord, plyMan.y, math.random(1,3), math.random(0.1,1))
+          table.insert(self.enemyList, nenemy)
+        end
       end
-      table.insert(self.enemyList, nenemy)
+      
       self.timeSinceLastSpawn = 0
     end
   end
@@ -61,7 +82,15 @@ function enemyController:update(dt)
   for key, value in pairs(self.enemyList) do
     value.timeSinceLastShot = value.timeSinceLastShot + dt
     if value.shootMode ~= 0 then
-      self:enemyShoot(value)
+      if value.shootMode == 4 and plyMan.hasKilledKraken then
+        HC:remove(value:getObj())
+        table.remove(enemycontrol.enemyList, key)
+      elseif value.shootMode == 5 and plyMan.hasKilledPlane then
+        HC:remove(value:getObj())
+        table.remove(enemycontrol.enemyList, key)
+      else     
+        self:enemyShoot(value)
+      end
     end
   end
 end
@@ -87,6 +116,11 @@ function enemyController:enemyShoot(enemy)
   end
   -- shark attack
   if enemy.shootMode == 3 then
+    if enemy.y > 0 then
+      enemy.enemyimg = love.graphics.newImage("img/shark.png")
+    else
+      enemy.enemyimg = love.graphics.newImage("img/sharkSurfaced.png")
+    end
     enemy.x = enemy.x-enemy.shootSpeed*10
     enemy.y = plyMan.y-20
     enemy:getObj():moveTo(enemy.x+(100/2),enemy.y+(72/2))

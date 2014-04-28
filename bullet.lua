@@ -73,12 +73,13 @@ function bullet:collideWithObj(shape_self,shape,dx,dy)
             table.insert(entities, powerup.create(math.random(1,4),value.x,value.y))
           end
           table.remove(enemycontrol.enemyList, key)
-            if shape.boss == "kraken" then
+          
+            if value:getObj().boss == "kraken" then
               plyMan.hasKilledKraken = true
-            elseif shape.boss == "plane" then
+            elseif value:getObj().boss == "plane" then
               plyMan.hasKilledPlane = true
             end
-          HC:remove(shape)
+          HC:remove(value:getObj())
         end
       end
     end

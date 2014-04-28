@@ -43,22 +43,28 @@ function enemy:setEnemyImg()
 end
 
 function enemy:initObj(id, lives, width, lenght)
-  
-  if self.shootMode == 4 then
-    self.lives = 15
+  if self.shootMode == 3 then
+    self.lives = 1
+    self.enemyObj = HC:addRectangle(self.x,self.y,120,55)
+  elseif self.shootMode == 4 then
+    self.lives = 20
     self.maxlives = self.lives
     self.enemyObj = HC:addRectangle(self.x,self.y,341,300)
     self.enemyObj.boss = "kraken"
     plyMan.isFightingKraken = true
   elseif self.shootMode == 5 then
-    self.lives = 25
+    self.lives = 40
     self.maxlives = self.lives
     self.enemyObj = HC:addRectangle(self.x,self.y,400,345)
     self.enemyObj.boss = "plane"
     plyMan.isFightingPlane = true
   else
     self.lives = 1
-    self.enemyObj = HC:addRectangle(self.x,self.y,100,72)
+    if plyMan.isSurfaced == false then
+      self.enemyObj = HC:addRectangle(self.x,self.y,100,72)
+    else
+      self.enemyObj = HC:addRectangle(self.x,self.y,130,47)
+    end
   end
   self.enemyObj.name = "enemy"
   if self.enemyObj.boss == nil then

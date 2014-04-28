@@ -32,37 +32,37 @@ function dialog:initObj(id)
   love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",18))
   if id == 1 then
     self.text = "The Kraken's fish want to kill us. Defeat the Kraken to end this fight!"
-    self.duration = 4
+    self.duration = 5
     love.audio.play(audio1)
   end
   if id == 2 then
     self.text = "Oh, and the Navy wants to see us dead aswell. Watch out!"
-    self.duration = 5
+    self.duration = 6
     love.audio.play(audio2)
   end    
   if id == 3 then
     self.text = "Watch your Air!"
-    self.duration = 3
+    self.duration = 4
     love.audio.play(audio3)
   end  
   if id == 4 then
     self.text = "Oh, you spotted the commando plane! Kill it to...uhm..test your weapon!?"
-    self.duration = 4
+    self.duration = 5
     love.audio.play(audio4)
   end
   if id == 5 then
     self.text = "Good job, but the Navy is still looking for us. Kill their commando plane to end this fight. For real this time!"
-    self.duration = 7
+    self.duration = 8
     love.audio.play(audio5)
   end  
   if id == 6 then
     self.text = "Good job, you made it!"
-    self.duration = 3
+    self.duration = 4
     love.audio.play(audio6)
   end  
   if id == 7 then
     self.text = "There here is, kill him!"
-    self.duration = 4
+    self.duration = 5
     love.audio.play(audio7)
   end  
 end

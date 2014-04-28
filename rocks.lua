@@ -4,6 +4,7 @@ rock.__index = rock
 rock1 = love.graphics.newImage("img/rock1.png")
 rock2 = love.graphics.newImage("img/rock2.png")
 rock3 = love.graphics.newImage("img/rock3.png")
+rock4 = love.graphics.newImage("img/rock4.png")
 ufo = love.graphics.newImage("img/ufo.png")
 plant = love.graphics.newImage("img/plant.png")
 plant2 = love.graphics.newImage("img/plant2.png")
@@ -26,24 +27,24 @@ end
 
 function rock:initObj(id)
   if id == 1 then
-  self.rockObj = HC:addPolygon(self.x+13,self.y+300, 
-    self.x+43,self.y+170,
-    self.x+64,self.y+180,
-    self.x+64,self.y+151, 
-    self.x+82,self.y+131,
-    self.x+93,self.y+104, 
-    self.x+104,self.y+82, 
-    self.x+124,self.y+88, 
-    self.x+126,self.y+106, 
-    self.x+129,self.y+114, 
-    self.x+128,self.y+120, 
-    self.x+128,self.y+129, 
-    self.x+150,self.y+100, 
-    self.x+163,self.y+88, 
-    self.x+171,self.y+100, 
-    self.x+185,self.y+169, 
-    self.x+190,self.y+209, 
-    self.x+199,self.y+300)
+    self.rockObj = HC:addPolygon(self.x+13,self.y+300, 
+      self.x+43,self.y+170,
+      self.x+64,self.y+180,
+      self.x+64,self.y+151, 
+      self.x+82,self.y+131,
+      self.x+93,self.y+104, 
+      self.x+104,self.y+82, 
+      self.x+124,self.y+88, 
+      self.x+126,self.y+106, 
+      self.x+129,self.y+114, 
+      self.x+128,self.y+120, 
+      self.x+128,self.y+129, 
+      self.x+150,self.y+100, 
+      self.x+163,self.y+88, 
+      self.x+171,self.y+100, 
+      self.x+185,self.y+169, 
+      self.x+190,self.y+209, 
+      self.x+199,self.y+300)
     self.rockid = rock1
     self.rockObj.name = "rock"
   elseif id == 2 then
@@ -51,8 +52,24 @@ function rock:initObj(id)
     self.rockid = rock2
     self.rockObj.name = "rock"
   elseif id == 20 then
-    self.rockObj = HC:addRectangle(self.x,self.y,300,400)
+    self.rockObj = HC:addPolygon(self.x+5,self.y+400, 
+      self.x+45,self.y+340,
+      self.x+68,self.y+235,
+      self.x+120,self.y+120, 
+      self.x+260,self.y+85,
+      self.x+285,self.y+400)
     self.rockid = rock3
+    self.rockObj.name = "rock"
+  elseif id == 21 then
+    self.rockObj = HC:addPolygon(self.x+30,self.y+40, 
+      self.x+75,self.y+15,
+      self.x+125,self.y+30,
+      self.x+140,self.y+75, 
+      self.x+125,self.y+115,
+      self.x+75,self.y+130,
+      self.x+40,self.y+115,
+      self.x+18,self.y+75)
+    self.rockid = rock4
     self.rockObj.name = "rock"
   elseif id == 3 then
     self.rockObj = HC:addRectangle(self.x,self.y,300,300)

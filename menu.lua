@@ -2,24 +2,27 @@ menu = {}
 menu.__index = menu
 
 plyimg = love.graphics.newImage("img/play.png")
-menubg = love.graphics.newImage("img/water_background.png")
+menubg = love.graphics.newImage("img/bg.png")
 
 function menu.create()
   local menuMan = {}
   setmetatable(menuMan, menu)
   menuDrawn = true
   love.window.setTitle("Shootmarine")
+  HC = Collider.new(150)
+  plyMan = player.create(playerx,playery,playerw,playerh)
   return menuMan
 end
 
 function menu:draw()
   love.graphics.draw (menubg, 0,0)
-  love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",60))
-  love.graphics.printf("Shootmarine",270,70,320,"center")
-  love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",18))
-  love.graphics.printf("Controls:\nWASD - move\nLeft Control - Shoot\nReturn - Restart\n\nSpace - Dive\nMove up underwater - Surface",325,150,320)
-  love.graphics.draw(plyimg, 375,300)
-  love.graphics.printf("Press Return to start",325,375,320)
+  love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",80))
+  love.graphics.printf("Shootmarine",330,30,320,"center")
+  love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",25))
+  love.graphics.printf("Controls:\nWASD - Move\nLeft Control - Shoot\nReturn - Restart\n\nSpace - Dive\nMove up underwater - Surface",280,140,320)
+  love.graphics.draw(plyimg, 350,370)
+  love.graphics.printf("Press Return to start",280,440,320)
+  plyMan:draw()
 end
 
 

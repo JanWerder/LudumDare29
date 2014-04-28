@@ -30,6 +30,8 @@ function player.create(x,y,w,h)
   plyMan.hasKilledKraken = false
   plyMan.hasKilledPlane = false
   plyMan.spreadshot = false
+  plyMan.ShieldBlock = false
+  plyMan.shieldBlockDuration = 2
   
   plyMan.levdir = 1
   plyMan.levdur = 0
@@ -44,21 +46,23 @@ end
 lastdt = 0
 function player:update(dt)
   lastdt = lastdt + dt
-  if lastdt >= 1 and self.isSurfaced == false then
-    lastdt = 0
-    self.air = self.air - 1
-  end
-  if lastdt >= 1 and self.isSurfaced == true and self.air < 30 then
-    lastdt = 0
-    if self.air % 2 == 0 then
+  if not plyMan.hasKilledKraken or not plyMan.hasKilledPlane then
+    if lastdt >= 1 and self.isSurfaced == false then
+      lastdt = 0
+      self.air = self.air - 1
+    end
+    if lastdt >= 1 and self.isSurfaced == true and self.air < 30 then
+      lastdt = 0
+      if self.air % 2 == 0 then
+        self.air = self.air + 1
+      end
       self.air = self.air + 1
     end
-    self.air = self.air + 1
+    
+    if self.air <= 0 then
+      self.isDead = true
+    end 
   end
-  
-  if self.air <= 0 then
-    self.isDead = true
-  end 
   
   if self.air <= 10 and self.isAirWarned == false then
       table.insert(hud, dialog.create(3))
@@ -82,11 +86,12 @@ function player:calcMove(plyMan)
     --keyboard input
    
 if not self.isDead then
+  self.plyObj:move(2,0)
     if (love.keyboard.isDown("w")) and self.y > -600 then
     self.plyObj:move(0,-self.speed-2)
   end
     if (love.keyboard.isDown("s")) and self.y < 600-self.w then
-    self.plyObj:move(0,self.speed-2)
+    self.plyObj:move(0,self.speed)
   end
     camX,camY = cam:worldCoords(0,0)
     if (love.keyboard.isDown("a")) and self.x > camX then
@@ -95,14 +100,14 @@ if not self.isDead then
     if (love.keyboard.isDown("d")) and self.x < camX+800-self.h then
     self.plyObj:move(self.speed-2,0)   
   end  
-  self.plyObj:move(2,0)
+  
   
   if self.x < camX then
     self.plyObj:move(2,0)   
   end
   
   if self.y >= -self.w-5 and self.isSurfaced then
-    self.plyObj:move(0,-3)   
+    self.plyObj:move(0,-self.speed)   
   end
   
 -- fuck this
@@ -113,18 +118,43 @@ if not self.isDead then
   
   if ( self.y < 0 and self.isSurfaced == false ) then
     if self.isFightingBoss == nil then
-      self.shield = 2
+      self:raiseShield()
+      
+      delKeys = {}
+      for key, value in pairs(entities) do
+        if value.x < self.x+350 and value:getObj().name == "rock" and value.y < 0 then
+          table.insert(delKeys, key)
+          HC:remove(value:getObj())
+        end
+      end
+      table.sort(delKeys, comp)
+      for key, value in pairs(delKeys) do
+        table.remove(entities, value)
+      end
+
       self:triggerSurface()
     end    
-  elseif (self.isSurfaced == true and love.keyboard.isDown(" ") and self.isFightingBoss ~= nil and self.isFightingBoss.shootMode ~= 5) or (self.isSurfaced == true and self.isFightingBoss ~= nil and self.isFightingBoss.shootMode == 4) then
+  elseif (self.isSurfaced == true and love.keyboard.isDown(" ") and self.isFightingBoss == nil) then
     if self.isFightingBoss == nil then
-      self.shield = 2
+      self:raiseShield()
       self:triggerDive()
       end
   end
   
-  if self.shield > 0 then
+  if self.shield > -0.5 then
     self.shield = self.shield - love.timer.getDelta()
+    if self.shield < 0 then
+      self.ShieldBlock = true
+    end
+    if self.shield > 0 then
+      self.ShieldBlock = false
+    end
+  end
+  
+  if self.shield <= -0.5 then
+    --print("ding")
+    self.ShieldBlock = false
+    --self.shieldBlockDuration = 2
   end
   
   if self.bulletDelay > self.bulletSpeed then
@@ -161,6 +191,15 @@ if not self.isDead then
   self:setCoordinates()
 end
 
+function player:raiseShield()
+  if self.shield <= 2 and self.shield > -0.5 then
+    self.shield = -0.1
+  end
+  if self.shield <= -0.5 then
+    self.shield = 2
+  end
+end
+
 function player:triggerSurface()
   self.plyObj:moveTo(self.x,-300)
   cameray = -300
@@ -168,15 +207,15 @@ function player:triggerSurface()
 end
 
 function player:triggerDive()
-  self.plyObj:moveTo(self.x,300)
+  self.plyObj:moveTo(self.x,200)
   cameray = 300
   self.isSurfaced = false
 end
 
 function player:initObj()
-  self.plyObj = HC:addRectangle(self.x,self.y,self.w,self.h)
+  self.plyObj = HC:addRectangle(self.x,self.y+15,self.h,self.w-15)
   --print(self.plyObj)
-  self.plyObj:rotate(math.rad(90),self.x,self.y)
+  --self.plyObj:rotate(math.rad(90),self.x,self.y)
   self.plyObj.name = "player"
   self:setCoordinates()
 end
@@ -185,23 +224,30 @@ function player:compareObj(shape)
   if shape == self.plyObj then
     return true
   end
-  return false
+    return false
 end
 
 function player:draw()
-  --self.plyObj:draw()
+ -- self.plyObj:draw()
+  
   if self.isSurfaced == false then
-    if self.shield > 0 and self.isDead == false then
-      love.graphics.draw(playermetalimg, self.x, self.y)
-    elseif self.shield <= 0 and self.isDead == false then
-      love.graphics.draw(playerimg, self.x, self.y)
-   elseif self.shield > 0 and self.isDead == true then
-     love.graphics.draw(playermetalimg, self.x+self.h, self.y+self.w, math.rad(180))
-    elseif self.shield <= 0 and self.isDead == true then      
-      love.graphics.draw(playerimg, self.x+self.h, self.y+self.w, math.rad(180))
-   end
+    --print(self.shield)
+    --print(self.ShieldBlock)
+    if self.shield > 0 and not self.ShieldBlock and self.isDead == false then
+        if  self.isDead == true then
+          love.graphics.draw(playermetalimg, self.x+self.h, self.y+self.w, math.rad(180))
+        else
+          love.graphics.draw(playermetalimg, self.x, self.y)
+        end
+    else
+        if  self.isDead == true then      
+          love.graphics.draw(playerimg, self.x+self.h, self.y+self.w, math.rad(180))
+        else
+          love.graphics.draw(playerimg, self.x, self.y)
+        end
+     end
   else
-    if self.shield > 0 then
+    if self.shield > 0 and  not self.ShieldBlock then
       love.graphics.draw(playertopmetalimg, self.x, self.y)
     else
     love.graphics.draw(playertopimg, self.x, self.y)
@@ -212,7 +258,7 @@ end
 function player:setCoordinates()
   local x1,y1, x2,y2 = self.plyObj:bbox()
   self.x = x1
-  self.y = y1
+  self.y = y1-15
 end
 
 function player:collideWithObj(shape,dx,dy)
@@ -271,4 +317,9 @@ end
 
 function player:getObj()
   return self.plyObj
+end
+function comp(w1,w2)
+    if w1 > w2 then
+        return true
+    end
 end
