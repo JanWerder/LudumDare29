@@ -36,7 +36,7 @@ function dialog:initObj(id)
     love.audio.play(audio1)
   end
   if id == 2 then
-    self.text = "Oh, and the Navi wants to see us dead aswell. Watch out!"
+    self.text = "Oh, and the Navy wants to see us dead aswell. Watch out!"
     self.duration = 5
     love.audio.play(audio2)
   end    
@@ -51,7 +51,7 @@ function dialog:initObj(id)
     love.audio.play(audio4)
   end
   if id == 5 then
-    self.text = "Good job, but the Navi is still looking for us. Kill their commando plane to end this fight. For real this time!"
+    self.text = "Good job, but the Navy is still looking for us. Kill their commando plane to end this fight. For real this time!"
     self.duration = 7
     love.audio.play(audio5)
   end  

@@ -226,7 +226,7 @@ function drawHud()
   
     if plyMan.isDead then
     love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",48))
-    love.graphics.printf("U r ded!\nPress Return to restart",250, 200, 350,"center") 
+    love.graphics.printf("You are dead!\nPress Return to restart",250, 200, 350,"center") 
    -- love.system.openURL("http://eelslap.com/")
   end
   love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",18))
