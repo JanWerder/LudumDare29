@@ -68,6 +68,10 @@ function bullet:collideWithObj(shape_self,shape,dx,dy)
         end
         if value.lives < 1 then
           plyMan.isFightingBoss = nil
+          plyMan.powerupDrop = plyMan.powerupDrop + 1
+          if plyMan.powerupDrop % plyMan.powerupRate == 0 then
+            table.insert(entities, powerup.create(math.random(1,4),value.x,value.y))
+          end
           table.remove(enemycontrol.enemyList, key)
             if shape.boss == "kraken" then
               plyMan.hasKilledKraken = true

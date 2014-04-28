@@ -15,17 +15,21 @@ function player.create(x,y,w,h)
   plyMan.y = y
   plyMan.w = w
   plyMan.h = h
+  plyMan.speed = 5
   plyMan.score = 0
   plyMan.bulletDelay = 0
   plyMan.bulletSpeed = 20
   plyMan.shield = 0
   plyMan.air = 30
+  plyMan.powerupDrop = 0
+  plyMan.powerupRate = 3
   plyMan.isSurfaced = false
   plyMan.isDead = false
   plyMan.isFightingBoss = nil
   plyMan.isAirWarned = false
   plyMan.hasKilledKraken = false
   plyMan.hasKilledPlane = false
+  plyMan.spreadshot = false
   
   plyMan.levdir = 1
   plyMan.levdur = 0
@@ -79,19 +83,19 @@ function player:calcMove(plyMan)
    
 if not self.isDead then
     if (love.keyboard.isDown("w")) and self.y > -600 then
-    self.plyObj:move(0,-3)
+    self.plyObj:move(0,-self.speed-2)
   end
     if (love.keyboard.isDown("s")) and self.y < 600-self.w then
-    self.plyObj:move(0,3)
+    self.plyObj:move(0,self.speed-2)
   end
     camX,camY = cam:worldCoords(0,0)
     if (love.keyboard.isDown("a")) and self.x > camX then
-    self.plyObj:move(-5,0)
+    self.plyObj:move(-self.speed,0)
   end
     if (love.keyboard.isDown("d")) and self.x < camX+800-self.h then
-    self.plyObj:move(5,0)   
+    self.plyObj:move(self.speed-2,0)   
   end  
-
+  self.plyObj:move(2,0)
   
   if self.x < camX then
     self.plyObj:move(2,0)   
@@ -125,8 +129,14 @@ if not self.isDead then
   
   if self.bulletDelay > self.bulletSpeed then
     if (love.keyboard.isDown("lctrl")) then
-      bulletMan = bullet.create(self.x+100,self.y+10,"player",10,0)
-      table.insert(entities, bulletMan)
+      if self.spreadshot == false then
+        bulletMan = bullet.create(self.x+100,self.y+10,"player",10,0)
+        table.insert(entities, bulletMan)
+      else
+        table.insert(entities, bullet.create(self.x+100,self.y+10,"player",10,-5))
+        table.insert(entities, bullet.create(self.x+100,self.y+10,"player",10,0))
+        table.insert(entities, bullet.create(self.x+100,self.y+10,"player",10,5))
+      end
     end
     self.bulletDelay = 0
   else
@@ -210,11 +220,17 @@ function player:collideWithObj(shape,dx,dy)
     self:crashesRock(dx,dy)
   end
   if shape.name == "powerup" then
-    if shape.type == "speed" then
+    if shape.type == "bullet" then
       self.bulletSpeed = 7
+    end
+    if shape.type == "speed" then
+      self.speed = 10
     end
     if shape.type == "air" then
       self.air = 30
+    end
+    if shape.type == "spreadshot" then
+      self.spreadshot = true
     end
     
     
@@ -231,7 +247,7 @@ function player:collideWithObj(shape,dx,dy)
     self:crashesRock(dx,dy)
   end
   if (shape.name == "enemy") and shape.boss ~= "plane" then
-    print(shape.boss)
+    --print(shape.boss)
     if plyMan.shield <= 0 then
     self.isDead = true
     end

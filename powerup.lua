@@ -4,6 +4,7 @@ powerup.__index = powerup
 powerupspeed = love.graphics.newImage("img/PUspeed.png")
 powerupspreadshot = love.graphics.newImage("img/PUspreadshot.png")
 powerupair = love.graphics.newImage("img/PULuft.png")
+powerupbullet = love.graphics.newImage("img/PUbullet.png")
 
 powerupObj ={}
 
@@ -22,9 +23,9 @@ end
 function powerup:initObj(id)
   if id == 1 then
     self.powerupObj = HC:addCircle(self.x+15,self.y+15,15)
-    self.powerupid = powerupspeed
+    self.powerupid = powerupbullet
     self.powerupObj.name = "powerup"
-    self.powerupObj.type = "speed"
+    self.powerupObj.type = "bullet"
   end
   
   if id == 2 then
@@ -33,6 +34,20 @@ function powerup:initObj(id)
     self.duration = 0
     self.powerupObj.name = "powerup"
     self.powerupObj.type = "air"
+  end
+  
+  if id == 3 then
+    self.powerupObj = HC:addCircle(self.x+15,self.y+15,15)
+    self.powerupid = powerupspeed
+    self.powerupObj.name = "powerup"
+    self.powerupObj.type = "speed"
+  end
+  
+  if id == 4 then
+    self.powerupObj = HC:addCircle(self.x+15,self.y+15,15)
+    self.powerupid = powerupspreadshot
+    self.powerupObj.name = "powerup"
+    self.powerupObj.type = "spreadshot"
   end
 end
 
@@ -49,8 +64,16 @@ function powerup:draw()
 end
 
 function powerup:rollback()
-  if self.powerupid == powerupspeed then
+  if self.powerupid == powerupbullet then
     plyMan.bulletSpeed = 20
+  end
+  
+  if self.powerupid == powerupspeed then
+    plyMan.speed = 5
+  end
+  
+  if self.powerupid == powerupspreadshot then
+    plyMan.spreadshot = false
   end
 end
 

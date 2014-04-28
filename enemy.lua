@@ -9,6 +9,7 @@ function enemy.create(x,y,shootMode, shootSpeed)
   enemyMan.x = x
   enemyMan.y = y
   enemyMan.lives = 0
+  enemyMan.maxlives = 0
   enemyMan.enemyimg = ""
   enemyMan.bossMoveDirection = 1
   enemyMan.timeSinceItemDrop = 0
@@ -44,13 +45,17 @@ end
 function enemy:initObj(id, lives, width, lenght)
   
   if self.shootMode == 4 then
-    self.lives = 10
+    self.lives = 15
+    self.maxlives = self.lives
     self.enemyObj = HC:addRectangle(self.x,self.y,341,300)
     self.enemyObj.boss = "kraken"
+    plyMan.isFightingKraken = true
   elseif self.shootMode == 5 then
-    self.lives = 10
+    self.lives = 25
+    self.maxlives = self.lives
     self.enemyObj = HC:addRectangle(self.x,self.y,400,345)
     self.enemyObj.boss = "plane"
+    plyMan.isFightingPlane = true
   else
     self.lives = 1
     self.enemyObj = HC:addRectangle(self.x,self.y,100,72)
@@ -66,6 +71,6 @@ function enemy:getObj()
 end
 
 function enemy:draw()
-  self.enemyObj:draw()
+  --self.enemyObj:draw()
   love.graphics.draw(self.enemyimg, self.x, self.y)
 end

@@ -5,6 +5,7 @@ require 'bullet'
 require 'enemyController'
 require 'powerup'
 require 'dialog'
+require 'menu'
 Collider = require 'hardoncollider'
 Camera = require 'hump.camera'
 
@@ -25,9 +26,21 @@ plantbg = love.graphics.newImage("img/plant.png")
 
 entities = {}
 hud ={}
+menuDrawn = false
+menuHold = nil
+
+audiobg = love.audio.newSource("sound/bg.mp3", "static")
 
 function love.load()
-   love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",20))
+  if not menuDrawn then
+    menuHold = menu.create()
+  else
+  
+  --Background Music
+  audiobg:setVolume(0.5)
+  love.audio.play(audiobg)
+  
+  love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",20))
   -- Init world
   HC = Collider.new(150)
 
@@ -48,8 +61,10 @@ function love.load()
   --table.insert(entities, rock.create(20,600,200))
   
   --powerup setup
-  table.insert(entities, powerup.create(1,500,100))
-  table.insert(entities, powerup.create(2,500,150))
+--  table.insert(entities, powerup.create(1,500,100))
+--  table.insert(entities, powerup.create(2,500,150))
+--  table.insert(entities, powerup.create(3,500,200))
+--  table.insert(entities, powerup.create(4,500,250))
   
   -- UFO setup
   table.insert(entities, rock.create(1,400,600-175))
@@ -69,20 +84,23 @@ function love.load()
   
   --table.insert(entities, rock.create(2,400,10))
   -- Coin Setup
-  for x = 0 , 150, 30 do
-    coinMan = coin.create(600+x,150)
-    table.insert(entities, coinMan)
-  end
+--  for x = 0 , 150, 30 do
+--    coinMan = coin.create(600+x,150)
+--    table.insert(entities, coinMan)
+--  end
   
   --Enemy Setup
   enemycontrol = enemyController.create()
-  
+  end
 end
 
 dialog1done = false
 dialog2done = false
 
 function love.update(dt)
+  if menuHold then
+    menu:update(dt)
+  else
     -- Plant setup
     if math.floor(cam.x % 30) == 0 or math.floor(cam.x % 30) == 1 then
       plantId = math.random(5,9)
@@ -139,9 +157,13 @@ function love.update(dt)
         end
       end
     end
+  end
 end
 
 function love.draw()
+  if menuHold then
+    menu:draw()
+  else  
   cam:attach()
   drawBackground()
   for key, value in ipairs(entities) do
@@ -157,6 +179,7 @@ function love.draw()
   cam:detach()
   --HUD
   drawHud()
+  end
 end
 
 function collide(dt, shape_one, shape_two, dx, dy)
@@ -207,7 +230,7 @@ function drawHud()
    -- love.system.openURL("http://eelslap.com/")
   end
   love.graphics.setFont(love.graphics.newFont("font/a song for jennifer.ttf",18))
-love.graphics.printf("Score: " .. plyMan.score .."\nFPS: " .. love.timer.getFPS( ),10, 10, 200,"left") 
+  love.graphics.printf("Score: " .. plyMan.score .."\nFPS: " .. love.timer.getFPS( ),10, 10, 200,"left") 
 
   
   --tipShowCounter = 0
@@ -226,7 +249,7 @@ love.graphics.printf("Score: " .. plyMan.score .."\nFPS: " .. love.timer.getFPS(
   end
   
   if plyMan.isFightingBoss ~= nil then
-    hudenemybarfillquad = love.graphics.newQuad(0,0,214/10*plyMan.isFightingBoss.lives,20,214,20)
+    hudenemybarfillquad = love.graphics.newQuad(0,0,214/plyMan.isFightingBoss.maxlives*plyMan.isFightingBoss.lives,20,214,20)
     love.graphics.draw(hudenemybar,300,500)
     love.graphics.draw(hudenemybarfill,hudenemybarfillquad,300+39,500+13)
   end

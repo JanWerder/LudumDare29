@@ -36,9 +36,17 @@ function enemyController:update(dt)
     if newEnemy == true then
       if plyMan.x > 2000 then
         if plyMan.y < 0 then
+          --Plane
           nenemy = enemy.create(newEnemyXKoord, plyMan.y, 5, 1)
+          if not plyMan.hasKilledKraken then
+            table.insert(hud, dialog.create(4))
+          end
         else
+          --Kraken
           nenemy = enemy.create(newEnemyXKoord, plyMan.y, 4, 1)
+          if plyMan.hasKilledKraken and not plyMan.hasKilledPlane then
+            table.insert(hud, dialog.create(7))
+          end
         end
       else
         nenemy = enemy.create(newEnemyXKoord, plyMan.y, math.random(1,3), math.random(0.1,1))
@@ -156,7 +164,7 @@ function enemyController:enemyShoot(enemy)
     diffY = plyMan.y - (enemy.y+345/2)
 
     if enemy.bombtimer == -1 then
-      if math.sqrt(diffX*diffX) < 10 and math.sqrt(diffY*diffY) < 10 then
+      if math.sqrt(diffX*diffX) < 12 and math.sqrt(diffY*diffY) < 12 then
         enemy.bombtimer = 0
       else
         if diffX > 5 then
